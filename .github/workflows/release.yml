@@ -1,0 +1,79 @@
+name: Create Release
+
+on:
+    workflow_dispatch:
+
+env:
+    PROJ_USERNAME: Tephirax
+    PROJ_NAME: OuterWildsSharedShipLog
+
+jobs:
+    pre_job:
+        name: Check For Other Releases
+        outputs:
+            version: ${{ steps.out.outputs.version }}
+            exists: ${{ steps.out.outputs.exists }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: "actions/checkout@v3"
+
+            - name: Read Manifest
+              id: read-manifest
+              run: echo "::set-output name=manifest::$(< ./${{ env.PROJ_NAME }}/manifest.json sed ':a;N;$!ba;s/\n/ /g')"
+
+            - name: Check For Release
+              uses: mukunku/tag-exists-action@v1.0.0
+              id: check-tag
+              with:
+                tag: "v${{fromJson(steps.read-manifest.outputs.manifest).version}}"
+              env:
+                GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+            
+            - name: Output Version Info
+              id: out
+              run: | 
+                echo "::set-output name=version::${{fromJson(steps.read-manifest.outputs.manifest).version}}"
+                echo "::set-output name=exists::${{steps.check-tag.outputs.exists}}"
+
+            - name: Error
+              if: ${{ steps.out.outputs.exists != 'false' }}
+              run: echo "::error file=manifest.json,title=Refusing to Release::Your mod was not released because there is already a release with the version in manifest.json"
+    release:
+        needs: pre_job
+        if: ${{ (needs.pre_job.outputs.version != '0.0.0') && (needs.pre_job.outputs.exists == 'false') }}
+        name: Create Release
+        runs-on: windows-latest
+        steps:
+            - name: Checkout
+              uses: "actions/checkout@v3"
+
+            - name: Setup .NET
+              uses: "actions/setup-dotnet@v2"
+
+            - name: Remove .csproj.user
+              run: rm ${{ env.PROJ_NAME }}/${{ env.PROJ_NAME }}.csproj.user
+
+            - name: Build Mod
+              run: dotnet build -c Release
+
+            - name: Upload Artifact
+              uses: "actions/upload-artifact@v2"
+              with:
+                name: "${{ env.PROJ_USERNAME }}.${{ env.PROJ_NAME }}"
+                path: "${{ env.PROJ_NAME }}/bin/Release"
+
+            - name: Zip For Release
+              run: 7z a ${{ env.PROJ_USERNAME }}.${{ env.PROJ_NAME }}.zip ${{ env.PROJ_NAME }}/bin/Release/**
+
+            - name: Create Release
+              uses: "ncipollo/release-action@v1"
+              with:
+                allowUpdates: true
+                commit: main
+                tag: v${{ needs.pre_job.outputs.version }}
+                name: Version ${{ needs.pre_job.outputs.version }}
+                omitBodyDuringUpdate: true
+                artifacts: "${{ env.PROJ_USERNAME}}.${{ env.PROJ_NAME }}.zip"
+                draft: true
+                prerelease: false
