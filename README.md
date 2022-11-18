@@ -1,5 +1,7 @@
 # Shared Ship Log Mod for Outer Wilds
 
+![image](https://user-images.githubusercontent.com/9653653/202709203-c6e2707c-851e-4720-8e23-00f78cf36110.png)
+
 Automated export of a text version of your ship log to a user-specific page at `https://shiplog.space/[userID]`, so it can be viewed by stream chat when you're not at your ship computer.
 
 IMPORTANT DLC NOTE: This mod has currently only been tested on the base game. I'll be checking that it's compatible with Echoes of the Eye in coming weeks; while this notice remains, please be aware that using this mod with EotE may cause inadvertent spoilers. And none of us want any part of OW to be spoiled ::)
