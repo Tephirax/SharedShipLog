@@ -12,7 +12,7 @@ IMPORTANT DLC NOTE: This mod has currently only been tested on the base game. I'
 
 ## Mod Options:
 
-- Twitch Username*: Please enter your unique user ID here to identify your export and build your page at https://shiplog.space (so for example, populating this option with tephirax will create a page at `https://shiplog.space/tephirax`). Without a user ID, the mod will not generate any output.
+- Twitch Username*: Please enter your unique user ID here to identify your export and build your page at https://shiplog.space (so for example, populating this option with `tephirax` will create a page at `https://shiplog.space/tephirax`). Without a user ID, the mod will not generate any output.
 - Online Ship Log: This option is checked as default. Uncheck if you do not wish further updates of your ship log to be exported to the web. (The mod will still generate a local file ../Outer Wilds/Outer Wilds Data/Shared Ship Log.json.)
 
 \* Please note: This mod was originally conceived as an aid to twitch streamers keeping their audience up to date on their progress. While it can also be used in offline play as a way to view your ship log while away from your ship, I would politely ask that you either use your twitch ID in this field or prefix your desired name with OFFLINE_ to avoid any conflict with streamers wishing to use this service.
