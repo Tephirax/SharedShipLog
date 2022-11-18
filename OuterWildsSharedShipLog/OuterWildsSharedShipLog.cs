@@ -216,7 +216,7 @@ namespace OuterWildsSharedShipLog
         {
             if (OuterWildsSharedShipLog.Instance.uploadYN && OuterWildsSharedShipLog.Instance.twitchID != "")
             {
-                var uwr = new UnityWebRequest("http://localhost:3000/api/shiplogs", "POST");
+                var uwr = new UnityWebRequest("https://shared-ship-log-server.vercel.app/api/shiplogs", "POST");
                 byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(jsonString);
                 uwr.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
                 uwr.SetRequestHeader("Content-Type", "application/json");
