@@ -60,143 +60,99 @@ namespace OuterWildsSharedShipLog
             WriteLog(entryList);
         }
 
+        protected static string DisplayName(string astralBodyID)
+        {
+            switch (astralBodyID)
+            {
+                case "SUN_STATION":
+                    return "Sun Station";
+                case "CAVE_TWIN":
+                    return "Ember Twin";
+                case "TOWER_TWIN":
+                    return "Ash Twin";
+                case "TIMBER_HEARTH":
+                    return "Timber Hearth";
+                case "TIMBER_MOON":
+                    return "The Attlerock";
+                case "BRITTLE_HOLLOW":
+                    return "Brittle Hollow";
+                case "VOLCANIC_MOON":
+                    return "Hollow's Lantern";
+                case "GIANTS_DEEP":
+                    return "Giant's Deep";
+                case "ORBITAL_PROBE_CANNON":
+                    return "Orbital Probe Cannon";
+                case "DARK_BRAMBLE":
+                    return "Dark Bramble";
+                case "WHITE_HOLE":
+                    return "White Hole";
+                case "COMET":
+                    return "The Interloper";
+                case "QUANTUM_MOON":
+                    return "Quantum Moon";
+                case "INVISIBLE_PLANET":
+                    return "The Stranger";
+                default:
+                    return astralBodyID;
+            };
+        }
+
         public static void WriteLog(List<ShipLogEntry> entryList)
         {
             // Create new user and assign twitchID
-            User writeUser = new User();
-            writeUser._twitchID = OuterWildsSharedShipLog.Instance.twitchID;
+            User writeUser = new User() { _twitchID = OuterWildsSharedShipLog.Instance.twitchID, astralBodies = new List<AstralBody>() };
 
-            // Create a list of astral bodies stacked under the user, called writeUser.astralBodies.
-            writeUser.astralBodies = new List<AstralBody>();
-
-            string _prevAstralBody = "";
+            // Create a list of astral bodies which will be stacked under the user.
+            Dictionary<string, List<Entry>> astralBodies = new Dictionary<string,List<Entry>>();
 
             foreach (ShipLogEntry astralBodyEntry in entryList)
             {
-                // Only do this for the first entry for each Astral Body
-                if (astralBodyEntry._astroObjectID != _prevAstralBody)
+                // Create new entry to store those facts
+                Entry writeEntry = new Entry();
+
+                // Get boolean of moreToExplore from the OW method
+                writeEntry._moreToExplore = astralBodyEntry.HasMoreToExplore();
+
+                // Create a list of entryContents stacked under the entry, called writeEntry.entryContents
+                writeEntry.entryContents = new List<EntryContents>();
+
+                // Get log facts for display from the OW method
+                List<ShipLogFact> factsForDisplay = astralBodyEntry.GetFactsForDisplay();
+
+                // If there are no facts in the list, skip to next astral body
+                if (factsForDisplay.Count() == 0) continue;
+
+                // Initialise a factCounter variable for fact ordering in the output
+                int factCounter = 0;
+
+                // Cycle through all facts in the list
+                do
                 {
+                    ShipLogFact fact = factsForDisplay[factCounter++];
 
-                    AstralBody writeAstralBody = new AstralBody();
-                    
-                    writeAstralBody._astroObjectID = astralBodyEntry._astroObjectID;
+                    // Write values
+                    writeEntry._entryID = fact._entryID;
+                    writeEntry._entryName = astralBodyEntry.GetName(false);
+                    writeEntry._rumor = fact._rumor;
 
-                    //OuterWildsSharedShipLog.Instance.ModHelper.Console.WriteLine("Current astral body = " + writeAstralBody._astroObjectID);
-                    //OuterWildsSharedShipLog.Instance.ModHelper.Console.WriteLine("Previous astral body = " + _prevAstralBody);
+                    // Create new entryContents to store the id and text
+                    EntryContents writeEntryContents = new EntryContents();
+                    writeEntryContents._factID = factCounter;
+                    writeEntryContents._text = fact._text;
 
-                    _prevAstralBody = astralBodyEntry._astroObjectID;
-
-                    // Create a list of entries stacked under the AstralBody, called writeAstralBody.entry
-                    writeAstralBody.entry = new List<Entry>();
-
-                    // Initialise an entryCounter variable to check if any entries exist in the astral body
-                    int entryCounter = 0;
-
-                    // Then cycle through entries in the list again, but only adding those which are associated with this astral body
-                    foreach (ShipLogEntry entry in entryList)
-                    {
-                        if (entry._astroObjectID == writeAstralBody._astroObjectID)
-                        {
-
-                            // Create new entry to store those facts
-                            Entry writeEntry = new Entry();
-
-                            // Get boolean of moreToExplore from the OW method
-                            writeEntry._moreToExplore = entry.HasMoreToExplore();
-
-                            // Create a list of entryContents stacked under the entry, called writeEntry.entryContents
-                            writeEntry.entryContents = new List<EntryContents>();
-
-                            // Get log facts for display from the OW method
-                            List<ShipLogFact> factsForDisplay = entry.GetFactsForDisplay();
-
-                            // Initialise a factCounter variable for fact ordering in the output
-                            int factCounter = 0;
-
-                            // Cycle through all facts in the list
-                            foreach (ShipLogFact fact in factsForDisplay)
-                            {
-                                // Increment entryCounter and factCounter
-                                entryCounter++;
-                                factCounter++;
-
-                                // Write values
-                                writeEntry._entryID = fact._entryID;
-                                writeEntry._entryName = entry.GetName(false);
-                                writeEntry._rumor = fact._rumor;
-
-                                // Create new entryContents to store the id and text
-                                EntryContents writeEntryContents = new EntryContents();
-                                writeEntryContents._factID = factCounter;
-                                writeEntryContents._text = fact._text;
-
-                                // Write entryContents developed above to writeEntry object
-                                writeEntry.entryContents.Add(writeEntryContents);
-                            }
-
-                            // Write entry developed above to writeUser object only if at least one fact is to be displayed
-                            if (factCounter > 0)
-                            {
-                                writeAstralBody.entry.Add(writeEntry);
-                                //OuterWildsSharedShipLog.Instance.ModHelper.Console.WriteLine("Wrote Entries for " + writeEntry._entryID);
-                            }
-                        }
-                    }
-                    if (entryCounter > 0) {
-                        // Map values to display values
-                        switch (writeAstralBody._astroObjectID)
-                        {
-                            case "SUN_STATION":
-                                writeAstralBody._astroObjectID = "Sun Station";
-                                break;
-                            case "CAVE_TWIN":
-                                writeAstralBody._astroObjectID = "Ember Twin";
-                                break;
-                            case "TOWER_TWIN":
-                                writeAstralBody._astroObjectID = "Ash Twin";
-                                break;
-                            case "TIMBER_HEARTH":
-                                writeAstralBody._astroObjectID = "Timber Hearth";
-                                break;
-                            case "TIMBER_MOON":
-                                writeAstralBody._astroObjectID = "The Attlerock";
-                                break;
-                            case "BRITTLE_HOLLOW":
-                                writeAstralBody._astroObjectID = "Brittle Hollow";
-                                break;
-                            case "VOLCANIC_MOON":
-                                writeAstralBody._astroObjectID = "Hollow's Lantern";
-                                break;
-                            case "GIANTS_DEEP":
-                                writeAstralBody._astroObjectID = "Giant's Deep";
-                                break;
-                            case "ORBITAL_PROBE_CANNON":
-                                writeAstralBody._astroObjectID = "Orbital Probe Cannon";
-                                break;
-                            case "DARK_BRAMBLE":
-                                writeAstralBody._astroObjectID = "Dark Bramble";
-                                break;
-                            case "WHITE_HOLE":
-                                writeAstralBody._astroObjectID = "White Hole";
-                                break;
-                            case "COMET":
-                                writeAstralBody._astroObjectID = "The Interloper";
-                                break;
-                            case "QUANTUM_MOON":
-                                writeAstralBody._astroObjectID = "Quantum Moon";
-                                break;
-                            case "INVISIBLE_PLANET":
-                                writeAstralBody._astroObjectID = "The Stranger";
-                                break;
-                            default:
-                                writeAstralBody._astroObjectID = astralBodyEntry._astroObjectID;
-                                break;
-                        };
-                        writeUser.astralBodies.Add(writeAstralBody);
-                        //OuterWildsSharedShipLog.Instance.ModHelper.Console.WriteLine("Wrote AstralBody for " + writeAstralBody._astroObjectID);
-                    }
+                    // Write entryContents developed above to writeEntry object
+                    writeEntry.entryContents.Add(writeEntryContents);
                 }
+                while (factCounter < factsForDisplay.Count());
+
+                // Write entry developed above to writeUser object only if at least one fact is to be displayed
+                string astralBodyName = DisplayName(astralBodyEntry._astroObjectID);
+                if (!astralBodies.ContainsKey(astralBodyName)) astralBodies.Add(astralBodyName, new List<Entry>());
+                astralBodies[astralBodyName].Add(writeEntry);
             }
+
+            // Convert dictionary back to a list that can be serialized into the existing JSON format
+            foreach (var (key, value) in astralBodies) writeUser.astralBodies.Add(new AstralBody() { _astroObjectID = key, entry = value });
             WriteLogJSON(writeUser);
         }
 
