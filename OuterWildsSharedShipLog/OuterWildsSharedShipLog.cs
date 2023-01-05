@@ -56,7 +56,7 @@ namespace OuterWildsSharedShipLog
 
             // Get list of entries
             List<ShipLogEntry> entryList = __instance._manager.GetEntryList();
-            
+
             WriteLog(entryList);
         }
 
@@ -99,11 +99,8 @@ namespace OuterWildsSharedShipLog
 
         public static void WriteLog(List<ShipLogEntry> entryList)
         {
-            // Create new user and assign twitchID
-            User writeUser = new User() { _twitchID = OuterWildsSharedShipLog.Instance.twitchID, astralBodies = new List<AstralBody>() };
-
             // Create a list of astral bodies which will be stacked under the user.
-            Dictionary<string, List<Entry>> astralBodies = new Dictionary<string,List<Entry>>();
+            Dictionary<string, List<Entry>> astralBodies = new Dictionary<string, List<Entry>>();
 
             foreach (ShipLogEntry astralBodyEntry in entryList)
             {
@@ -152,6 +149,7 @@ namespace OuterWildsSharedShipLog
             }
 
             // Convert dictionary back to a list that can be serialized into the existing JSON format
+            User writeUser = new User() { _twitchID = OuterWildsSharedShipLog.Instance.twitchID, astralBodies = new List<AstralBody>() };
             foreach (var (key, value) in astralBodies) writeUser.astralBodies.Add(new AstralBody() { _astroObjectID = key, entry = value });
             WriteLogJSON(writeUser);
         }
@@ -162,7 +160,7 @@ namespace OuterWildsSharedShipLog
             string jsonString = JsonConvert.SerializeObject(user);
             //string jsonString = JsonUtility.ToJson(user);
             string filePath = Path.Combine(Application.dataPath, "SharedShipLog.json");
-            
+
             Debug.Log("Attempting to write log to" + filePath);
             File.WriteAllText(filePath, jsonString);
             PostJSON(jsonString);
@@ -180,7 +178,7 @@ namespace OuterWildsSharedShipLog
             }
         }
     }
-        
+
     [Serializable]
     public class User
     {
@@ -213,5 +211,5 @@ namespace OuterWildsSharedShipLog
     }
 }
 
-    
+
 
